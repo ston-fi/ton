@@ -440,7 +440,7 @@ void AdnlPeerTableImpl::get_stats(td::Promise<tl_object_ptr<ton_api::adnl_stats>
   for (auto &[id, local_id] : local_ids_) {
     td::actor::send_closure(callback, &Cb::inc_pending);
     td::actor::send_closure(local_id.local_id, &AdnlLocalId::get_stats,
-                            [id, callback](td::Result<tl_object_ptr<ton_api::adnl_stats_localId>> R) {
+                            [id = id, callback](td::Result<tl_object_ptr<ton_api::adnl_stats_localId>> R) {
                               if (R.is_error()) {
                                 VLOG(ADNL_NOTICE)
                                     << "failed to get stats for local id " << id << " : " << R.move_as_error();

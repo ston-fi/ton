@@ -1000,17 +1000,17 @@ void AdnlPeerImpl::get_stats(td::Promise<std::vector<tl_object_ptr<ton_api::adnl
 
   for (auto &[local_id, peer_pair] : peer_pairs_) {
     td::actor::send_closure(callback, &Cb::inc_pending);
-    td::actor::send_closure(
-        peer_pair, &AdnlPeerPair::get_stats,
-        [local_id, peer_id = peer_id_short_, callback](td::Result<tl_object_ptr<ton_api::adnl_stats_peerPair>> R) {
-          if (R.is_error()) {
-            VLOG(ADNL_NOTICE) << "failed to get stats for peer pair " << peer_id << "->" << local_id << " : "
-                              << R.move_as_error();
-            td::actor::send_closure(callback, &Cb::dec_pending);
-          } else {
-            td::actor::send_closure(callback, &Cb::got_peer_pair_stats, R.move_as_ok());
-          }
-        });
+    td::actor::send_closure(peer_pair, &AdnlPeerPair::get_stats,
+                            [local_id = local_id, peer_id = peer_id_short_,
+                             callback](td::Result<tl_object_ptr<ton_api::adnl_stats_peerPair>> R) {
+                              if (R.is_error()) {
+                                VLOG(ADNL_NOTICE) << "failed to get stats for peer pair " << peer_id << "->" << local_id
+                                                  << " : " << R.move_as_error();
+                                td::actor::send_closure(callback, &Cb::dec_pending);
+                              } else {
+                                td::actor::send_closure(callback, &Cb::got_peer_pair_stats, R.move_as_ok());
+                              }
+                            });
   }
   td::actor::send_closure(callback, &Cb::dec_pending);
 }
